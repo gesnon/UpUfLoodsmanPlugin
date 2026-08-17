@@ -19,7 +19,7 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <Border BorderBrush="Black" BorderThickness="1" Width="150" Padding="5,5,5,5">
                     <ListBox x:Name="ListBox1" d:ItemsSource="{d:SampleData ItemCount=5}" SelectionMode="Multiple" Background="#FFA5A2A2">
@@ -28,9 +28,9 @@
                         </ListBox.ItemContainerStyle>
                     </ListBox>
                 </Border>
-                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Margin="5,0,5,0" Width="400"/>
-                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="2" Width="297">
-                    <ListView x:Name="myListView" ItemsSource="{Binding anyList}" Width="400">
+                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Margin="5,0,5,0"/>
+                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="2">
+                    <ListView x:Name="myListView" ItemsSource="{Binding anyList}">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Style.Triggers>
@@ -52,7 +52,9 @@
 
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Задача" DisplayMemberBinding="{Binding Name}" Width="200"/>
+                                <GridViewColumn Header="Задача" DisplayMemberBinding="{Binding Name}" Width="200" >
+
+                                </GridViewColumn>
                                 <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding OperationStatus}" Width="100"/>
                             </GridView>
                         </ListView.View>
