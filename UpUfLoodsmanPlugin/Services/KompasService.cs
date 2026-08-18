@@ -1,4 +1,5 @@
 ﻿using Kompas6API5;
+using Kompas6Constants;
 using KompasAPI7;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace UpUfLoodsmanPlugin.Services
     {
 
         KompasObject kompasObjectAPI5;
+        IApplication KompasObjectAPI7;
+        IKompasDocument doc2D;
         public KompasObject ConnectToKompasApp()
         {
             
@@ -40,10 +43,9 @@ namespace UpUfLoodsmanPlugin.Services
             return kompasObjectAPI5;
         }
 
-        public bool ConnectOrStartKompas()
+        public async Task<bool> ConnectOrStartKompas()
         {
-            Thread.Sleep(5000);
-            return true;
+            
             KompasObject kompasObjectAPI5 = ConnectToKompasApp();
 
             if (kompasObjectAPI5 == null)
@@ -53,6 +55,7 @@ namespace UpUfLoodsmanPlugin.Services
 
             if (kompasObjectAPI5 != null)
             {
+                kompasObjectAPI5.Visible = true;
                 return true;
             }
             return false;
@@ -61,6 +64,20 @@ namespace UpUfLoodsmanPlugin.Services
         public KompasObject TestMethode()
         {
             return kompasObjectAPI5;
+        }
+
+        public async Task<bool> OpenDocument(string Path)
+        {            
+            KompasObjectAPI7 = kompasObjectAPI5.ksGetApplication7();
+
+            KompasObjectAPI7.HideMessage = ksHideMessageEnum.ksHideMessageYes;
+            bool docVisible = true;
+            doc2D = KompasObjectAPI7.Documents.Open(Path, docVisible, false);
+            if (doc2D != null)
+            {
+                return true;
+            }
+            return false;
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,10 +21,13 @@ namespace UpUfLoodsmanPlugin.Services
 {
     public class MainWindowViewModel
     {
+        string testDocumentPath = @"C:\Users\SPankratov\source\repos\UpUfLoodsmanPlugin\UpUfLoodsmanPlugin\TestFiles\4ГК.320.415 СБ.cdw";
         KompasService _kompasService = new KompasService();
 
         public ICommand MainButtonCommand { get; }
         public AsyncRelayCommand AsyncMainButtonCommand { get; }
+
+
         //Этот список будет передаваться из лоцмана (полльзователь до запуска приложения выделяет список необходимых объектов)
         List<string> selectedLoodsmanObjects = new List<string> { "4ГК.320.415", "4ГК.320.415-001", "4ГК.320.415-002" };
 
@@ -44,6 +48,7 @@ namespace UpUfLoodsmanPlugin.Services
             operationList = new ObservableCollection<Operation> { new Operation("Запуск компаса", OperationStatus.Waiting), new Operation("Открытие модели", OperationStatus.Waiting) };
             MainButtonCommand = new RelayCommand(MainButtonClick, CanBeClicked);
             AsyncMainButtonCommand = new AsyncRelayCommand(AsyncMainButtonClick);
+
         }
 
         public void MainMethod()
@@ -59,26 +64,29 @@ namespace UpUfLoodsmanPlugin.Services
         }
         private void MainButtonClick(object parameter)
         {
-            bool startKompas = Task.Run(() => _kompasService.ConnectOrStartKompas()).Result;
-
-
-            if (startKompas)
-            {
-                operationList[0].OperationStatus = OperationStatus.Success;
-            }
-            _kompasService.TestMethode();
+            //MethodeOne();
+            //MethodeTwo();
 
 
         }
+
         private async Task AsyncMainButtonClick()
         {
-            await Task.Run(() => { _kompasService.ConnectOrStartKompas(); });
 
+            bool startKompasCheck = await _kompasService.ConnectOrStartKompas();
+            if (startKompasCheck)
+            {
+                operationList[0].OperationStatus = OperationStatus.Success;
+            }
+            
 
-            operationList[0].OperationStatus = OperationStatus.Success;
-                        
-
-
+            bool openDocumentCheck = await _kompasService.OpenDocument(testDocumentPath);            
+            
+            if (openDocumentCheck)
+            {
+                operationList[1].OperationStatus |= OperationStatus.Success;
+            }
+            Thread.Sleep(2000);
         }
 
         private bool CanBeClicked(object parameter)

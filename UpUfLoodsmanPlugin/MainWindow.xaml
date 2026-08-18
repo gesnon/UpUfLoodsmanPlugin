@@ -73,7 +73,7 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Button x:Name="mainButton" Content="Синхронный" Command="{Binding MainButtonCommand}"/>
-                <Button x:Name="mainButton2" Content="Асинхронный" Command="{Binding AsyncMainButtonCommand}" Grid.Column="1"/>
+                <Button x:Name="mainButton2" Content="Асинхронный" Command="{Binding AsyncMainButtonCommand, Mode=OneWay}" Grid.Column="1"/>
             </Grid>            
         </Border>
 

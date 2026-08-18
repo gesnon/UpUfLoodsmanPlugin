@@ -153,6 +153,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="TestFiles\4ГК.320.415 СБ.cdw" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
