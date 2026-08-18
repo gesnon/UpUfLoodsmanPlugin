@@ -67,7 +67,14 @@
             </Grid>
         </Border>
         <Border BorderBrush="Black" BorderThickness="1" Background="White" Grid.Row="2" Height="54">
-            <Button x:Name="mainButton" Content="Button" Command="{Binding MyCommand}"/>
+            <Grid >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="mainButton" Content="Синхронный" Command="{Binding MainButtonCommand}"/>
+                <Button x:Name="mainButton2" Content="Асинхронный" Command="{Binding AsyncMainButtonCommand}" Grid.Column="1"/>
+            </Grid>            
         </Border>
 
 
