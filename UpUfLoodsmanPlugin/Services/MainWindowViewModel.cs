@@ -72,21 +72,18 @@ namespace UpUfLoodsmanPlugin.Services
 
         private async Task AsyncMainButtonClick()
         {
-
-            bool startKompasCheck = await _kompasService.ConnectOrStartKompas();
-            if (startKompasCheck)
+            
+            if (await Task.Run(() => _kompasService.ConnectOrStartKompas().Result))
             {
                 operationList[0].OperationStatus = OperationStatus.Success;
             }
-            
 
-            bool openDocumentCheck = await _kompasService.OpenDocument(testDocumentPath);            
             
-            if (openDocumentCheck)
+            if (await Task.Run(() => _kompasService.OpenDocument(testDocumentPath).Result))
             {
-                operationList[1].OperationStatus |= OperationStatus.Success;
+                operationList[1].OperationStatus = OperationStatus.Success;
             }
-            Thread.Sleep(2000);
+
         }
 
         private bool CanBeClicked(object parameter)
