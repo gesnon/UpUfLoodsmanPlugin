@@ -23,7 +23,7 @@ namespace UpUfLoodsmanPlugin
     public partial class MainWindow : Window
     {
         public static MainWindowViewModel _MainWindowViewModel = new MainWindowViewModel();
-        public ObservableCollection<Operation> operationsList = _MainWindowViewModel.operationList;
+        //public ObservableCollection<Operation> operationsList = _MainWindowViewModel.operationList;
 
 
         public MainWindow()
@@ -36,7 +36,7 @@ namespace UpUfLoodsmanPlugin
             ListBox1.Items.Add("Объект4");
             ListBox1.Items.Add("Объект5");
 
-            myListView.ItemsSource = operationsList;
+           
 
         }
 
@@ -46,27 +46,7 @@ namespace UpUfLoodsmanPlugin
         {
             mainButton.IsEnabled = false;
 
-            await Task.Run(() =>
-            {
-                _MainWindowViewModel.SetOperationStatus(operationsList[0], OperationStatus.Success);
-
-            });           
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                myListView.Items.Refresh();
-            });
-
-            await Task.Run(() =>
-            {
-                _MainWindowViewModel.SetOperationStatus(operationsList[1], OperationStatus.Unsuccess);
-
-            });
-
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                myListView.Items.Refresh();
-            });
+            
 
             mainButton.IsEnabled = true;
         }
