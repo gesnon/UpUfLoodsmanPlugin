@@ -28,14 +28,10 @@ namespace UpUfLoodsmanPlugin
 
         public MainWindow()
         {
-            InitializeComponent();
-
-            ListBox1.Items.Add("Объект1");
-            ListBox1.Items.Add("Объект2");
-            ListBox1.Items.Add("Объект3");
-            ListBox1.Items.Add("Объект4");
-            ListBox1.Items.Add("Объект5");
-
+            InitializeComponent();                        
+            MyWebView.EnsureCoreWebView2Async();
+            
+            //MyWebView.Source = new Uri(@"C:\Users\SPankratov\source\repos\UpUfLoodsmanPlugin\UpUfLoodsmanPlugin\TestFiles\Тестовый файл 1.pdf");
            
 
         }

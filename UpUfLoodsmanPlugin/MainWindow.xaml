@@ -1,16 +1,17 @@
-﻿<Window x:Class="UpUfLoodsmanPlugin.MainWindow"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UpUfLoodsmanPlugin.Services"        
+        xmlns:Wpf="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf" x:Class="UpUfLoodsmanPlugin.MainWindow"        
         mc:Ignorable="d"
         Title="Создание управляющих программ из чертежа" Height="758" Width="1160">
-    
+
     <Window.DataContext>
         <local:MainWindowViewModel/>
     </Window.DataContext>
-    
+
     <Grid Margin="15,15,15,15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -25,44 +26,102 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border BorderBrush="Black" BorderThickness="1" Width="150" Padding="5,5,5,5">
-                    <ListBox x:Name="ListBox1" d:ItemsSource="{d:SampleData ItemCount=5}" SelectionMode="Multiple" Background="#FFA5A2A2">
-                        <ListBox.ItemContainerStyle>
-                            <Style/>
-                        </ListBox.ItemContainerStyle>
-                    </ListBox>
-                </Border>
-                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Margin="5,0,5,0"/>
-                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="2">
-                    <ListView x:Name="myListView" ItemsSource="{Binding operationList}">
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Style.Triggers>
-                                    <!-- Если статус Done — цвет зеленый -->
-                                    <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
-                                        <Setter Property="Background" Value="LightYellow"/>
-                                    </DataTrigger>
-                                    <!-- Если статус InProgress — цвет желтый -->
-                                    <DataTrigger Binding="{Binding OperationStatus}" Value="Success">
-                                        <Setter Property="Background" Value="LightGreen"/>
-                                    </DataTrigger>
-                                    <!-- Если статус InProgress — цвет желтый -->
-                                    <DataTrigger Binding="{Binding OperationStatus}" Value="Unsuccess">
-                                        <Setter Property="Background" Value="IndianRed"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </ListView.ItemContainerStyle>
-
+                <Border BorderBrush="Black" BorderThickness="1" Width="150">
+                    <ListView x:Name="selectedLoodsmanObjectListView" ItemsSource="{Binding selectedLoodsmanObjects}">
                         <ListView.View>
                             <GridView>
-                                <GridViewColumn Header="Задача" DisplayMemberBinding="{Binding Name}" Width="200" >
-
-                                </GridViewColumn>
-                                <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding OperationStatus}" Width="100"/>
+                                <GridViewColumn/>
                             </GridView>
                         </ListView.View>
                     </ListView>
+                </Border>
+                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="1" Margin="5,0,5,0">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>                            
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Height="30">
+                            <TextBlock x:Name="PictureNameTextBlock" TextWrapping="Wrap" Text="" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <Wpf:WebView2 x:Name="MyWebView" Source="{Binding currentWebViewFile}" Grid.Row="1" />
+                    </Grid>
+                    
+                </Border>
+                <Border BorderBrush="Black" BorderThickness="1" Grid.Column="2">
+                    <Grid >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <ListView x:Name="myListView" ItemsSource="{Binding operationList}" Grid.Column="0" Margin="0,0,0,5">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}">
+                                    <Style.Triggers>
+                                        <!-- Если статус Done — цвет зеленый -->
+                                        <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
+                                            <Setter Property="Background" Value="LightYellow"/>
+                                        </DataTrigger>
+                                        <!-- Если статус InProgress — цвет желтый -->
+                                        <DataTrigger Binding="{Binding OperationStatus}" Value="Success">
+                                            <Setter Property="Background" Value="LightGreen"/>
+                                        </DataTrigger>
+                                        <!-- Если статус InProgress — цвет желтый -->
+                                        <DataTrigger Binding="{Binding OperationStatus}" Value="Unsuccess">
+                                            <Setter Property="Background" Value="IndianRed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Задача" DisplayMemberBinding="{Binding Name}" Width="200" />
+                                    <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding OperationStatus}" Width="100"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <Separator Background="Black" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Margin="5,10,5,10" Height="10" VerticalAlignment="Top">
+                            <Separator.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="1" ScaleY="-1"/>
+                                    <SkewTransform/>
+                                    <RotateTransform/>
+                                    <TranslateTransform/>
+                                </TransformGroup>
+                            </Separator.RenderTransform>
+                        </Separator>
+                        <ListView x:Name="pdfPrintListView" d:ItemsSource="{d:SampleData ItemCount=5}" Grid.Row="2" Grid.RowSpan="2" Margin="0,5,0,0" ItemsSource="{Binding pdfObjectsList}">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}">
+                                    <Style.Triggers>
+                                        <!-- Если статус Done — цвет зеленый -->
+                                        <DataTrigger Binding="{Binding OperationStatus}" Value="Waiting">
+                                            <Setter Property="Background" Value="LightYellow"/>
+                                        </DataTrigger>
+                                        <!-- Если статус InProgress — цвет желтый -->
+                                        <DataTrigger Binding="{Binding OperationStatus}" Value="Success">
+                                            <Setter Property="Background" Value="LightGreen"/>
+                                        </DataTrigger>
+                                        <!-- Если статус InProgress — цвет желтый -->
+                                        <DataTrigger Binding="{Binding OperationStatus}" Value="Unsuccess">
+                                            <Setter Property="Background" Value="IndianRed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Задача" DisplayMemberBinding="{Binding Name}" Width="200" />
+                                    <GridViewColumn Header="Статус" DisplayMemberBinding="{Binding OperationStatus}" Width="100"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+
+
+
+                    </Grid>
+
                 </Border>
             </Grid>
         </Border>
@@ -71,10 +130,13 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button x:Name="mainButton" Content="Синхронный" Command="{Binding MainButtonCommand}"/>
-                <Button x:Name="mainButton2" Content="Асинхронный" Command="{Binding AsyncMainButtonCommand, Mode=OneWay}" Grid.Column="1"/>
-            </Grid>            
+                <Button x:Name="mainButton" Content="Назад" Command="{Binding PreviousButtonCommand}" CommandParameter="{Binding currentWebViewFile}"/>
+                <Button x:Name="mainButton1" Content="Вперед" Command="{Binding NextButtonCommand}" CommandParameter="{Binding currentWebViewFile}" Grid.Column="1"/>
+                <Button x:Name="mainButton2" Content="Старт" Command="{Binding AsyncMainButtonCommand, Mode=OneWay}" Grid.Column="2"/>
+                
+            </Grid>
         </Border>
 
 

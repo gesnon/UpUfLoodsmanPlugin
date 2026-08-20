@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection.Emit;
 using System.Runtime.ExceptionServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,18 +22,23 @@ namespace UpUfLoodsmanPlugin.Services
 {
     public class MainWindowViewModel
     {
-        string testDocumentPath = @"C:\Users\SPankratov\source\repos\UpUfLoodsmanPlugin\UpUfLoodsmanPlugin\TestFiles\4ГК.320.415 СБ.cdw";
+        static string testDocumentPath = @"C:\Users\SPankratov\source\repos\UpUfLoodsmanPlugin\UpUfLoodsmanPlugin\TestFiles\4ГК.320.415 СБ.cdw";
+
+        string testDocumentName = testDocumentPath.Split('\\').Last();
+
         KompasService _kompasService = new KompasService();
 
-        public ICommand MainButtonCommand { get; }
+        public ICommand PreviousButtonCommand { get; }
+        public ICommand NextButtonCommand { get; }
         public AsyncRelayCommand AsyncMainButtonCommand { get; }
-
-
-        //Этот список будет передаваться из лоцмана (полльзователь до запуска приложения выделяет список необходимых объектов)
-        List<string> selectedLoodsmanObjects = new List<string> { "4ГК.320.415", "4ГК.320.415-001", "4ГК.320.415-002" };
-
         public ObservableCollection<Operation> _operationList;
-
+        public ObservableCollection<string> _selectedLoodsmanObjects;
+        public ObservableCollection<PrintGroup> _pdfObjectsList;
+        public ObservableCollection<Uri> _outputFiles;
+        public int currentDpfViewIndex;
+        
+        public Uri _currentWebViewFile;
+        
 
         public ObservableCollection<Operation> operationList
         {
@@ -43,10 +49,61 @@ namespace UpUfLoodsmanPlugin.Services
                 OnPropertyChanged(nameof(operationList));
             }
         }
+        public ObservableCollection<string> selectedLoodsmanObjects
+        {
+            get => _selectedLoodsmanObjects;
+            set
+            {
+                _selectedLoodsmanObjects = value;
+                OnPropertyChanged(nameof(selectedLoodsmanObjects));
+            }
+        }
+        public ObservableCollection<PrintGroup> pdfObjectsList
+        {
+            get => _pdfObjectsList;
+            set
+            {
+                _pdfObjectsList = value;
+                OnPropertyChanged(nameof(pdfObjectsList));
+            }
+        }
+
+        public ObservableCollection<Uri> outputFiles
+        {
+            get => _outputFiles;
+            set
+            {
+                _outputFiles = value;
+                OnPropertyChanged(nameof(outputFiles));
+            }
+        }
+                
+        public Uri currentWebViewFile
+        {
+            get => _currentWebViewFile;
+            set
+            {
+                _currentWebViewFile = value;
+                OnPropertyChanged(nameof(currentWebViewFile));
+            }
+        }
         public MainWindowViewModel()
         {
-            operationList = new ObservableCollection<Operation> { new Operation("Запуск компаса", OperationStatus.Waiting), new Operation("Открытие модели", OperationStatus.Waiting) };
-            MainButtonCommand = new RelayCommand(MainButtonClick, CanBeClicked);
+            operationList = new ObservableCollection<Operation> {
+                new Operation("Поиск модели", OperationStatus.Waiting),
+                new Operation("Выгрузка модели", OperationStatus.Waiting),
+                new Operation("Запуск компаса", OperationStatus.Waiting),
+                new Operation("Открытие модели", OperationStatus.Waiting),
+                new Operation("Очистка мусора", OperationStatus.Waiting),
+                new Operation("Копирование изображений", OperationStatus.Waiting)
+
+            };
+
+            selectedLoodsmanObjects = new ObservableCollection<string> { "4ГК.320.415", "4ГК.320.415-001", "4ГК.320.415-002" };
+            pdfObjectsList = new ObservableCollection<PrintGroup>();
+            outputFiles = new ObservableCollection<Uri>();
+            PreviousButtonCommand = new RelayCommand(PreviousButtonClick, CanBeClicked);
+            NextButtonCommand = new RelayCommand(NextButtonClick, CanBeClicked);
             AsyncMainButtonCommand = new AsyncRelayCommand(AsyncMainButtonClick);
 
         }
@@ -57,32 +114,81 @@ namespace UpUfLoodsmanPlugin.Services
             var testObject = _kompasService.ConnectToKompasApp();
 
         }
-        public void SetOperationStatus(Operation operation, OperationStatus operationStatus)
+
+        private void PreviousButtonClick(object parameter)
         {
-            Operation oper = operationList.FirstOrDefault(_ => _ == operation);
-            oper.OperationStatus = operationStatus;
+            if (currentDpfViewIndex > 0)
+            {
+                currentDpfViewIndex --;
+                currentWebViewFile = outputFiles[currentDpfViewIndex];
+                ((MainWindow)Application.Current.MainWindow).MyWebView.Source = currentWebViewFile;
+                ((MainWindow)Application.Current.MainWindow).PictureNameTextBlock.Text = _pdfObjectsList[currentDpfViewIndex].Name;
+            }
+
+
+
         }
-        private void MainButtonClick(object parameter)
+        private void NextButtonClick(object parameter)
         {
-            //MethodeOne();
-            //MethodeTwo();
+            if (currentDpfViewIndex < outputFiles.Count-1)
+            {
+                currentDpfViewIndex++;
+                currentWebViewFile = outputFiles[currentDpfViewIndex];
+                ((MainWindow)Application.Current.MainWindow).MyWebView.Source = currentWebViewFile;
+                ((MainWindow)Application.Current.MainWindow).PictureNameTextBlock.Text = _pdfObjectsList[currentDpfViewIndex].Name;
+            }
 
 
         }
 
         private async Task AsyncMainButtonClick()
         {
-            
+
             if (await Task.Run(() => _kompasService.ConnectOrStartKompas().Result))
             {
-                operationList[0].OperationStatus = OperationStatus.Success;
+                operationList[2].OperationStatus = OperationStatus.Success;
             }
 
-            
-            if (await Task.Run(() => _kompasService.OpenDocument(testDocumentPath).Result))
+            if (await Task.Run(() => _kompasService.OpenOrSelectDocument(testDocumentPath).Result))
             {
-                operationList[1].OperationStatus = OperationStatus.Success;
+                operationList[3].OperationStatus = OperationStatus.Success;
             }
+            if (await Task.Run(() => _kompasService.DeleteTrashFromDocument().Result))
+            {
+                operationList[4].OperationStatus = OperationStatus.Success;
+            }
+            if (await Task.Run(() => _kompasService.CreatetemporaryGroup().Result))
+            {
+                operationList[5].OperationStatus = OperationStatus.Success;
+            }
+
+            List<PrintGroup> printGroups = await Task.Run(() => _kompasService.SplitAndCreate());
+            foreach (PrintGroup printGroup in printGroups)
+            {
+
+                await Task.Run(() =>
+                {
+
+                    App.Current.Dispatcher.Invoke(() =>
+                    {
+                        pdfObjectsList.Add(printGroup);
+                    });
+                });
+            }
+
+            for (int i = 0; i < pdfObjectsList.Count; i++)
+            {
+                if (await Task.Run(() => _kompasService.CreatePdf(pdfObjectsList[i], i + 1).Result))
+                {
+                    pdfObjectsList[i].OperationStatus = OperationStatus.Success;
+                    outputFiles.Add(new Uri(pdfObjectsList[i].OutputPath));
+                    currentWebViewFile = outputFiles[i];
+                    ((MainWindow)Application.Current.MainWindow).MyWebView.Source = currentWebViewFile;
+                    ((MainWindow)Application.Current.MainWindow).PictureNameTextBlock.Text = _pdfObjectsList[i].Name;
+                    currentDpfViewIndex = i;
+                }
+            }
+            _kompasService.CloseTemporaryDocument();
 
         }
 
