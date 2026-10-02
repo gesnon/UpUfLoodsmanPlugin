@@ -156,6 +156,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <None Include="TestFiles\4ГК.320.415 СБ.cdw" />
+    <None Include="TestFiles\7ГК.863.271 Табличка.cdw" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

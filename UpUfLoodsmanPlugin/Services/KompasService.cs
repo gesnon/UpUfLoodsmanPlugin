@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using UpUfLoodsmanPlugin.Entities;
 using Thread = System.Threading.Thread;
@@ -355,8 +356,14 @@ namespace UpUfLoodsmanPlugin.Services
 
                         IKompasDocument2D newDoc2DAPI7 = CreateDoc2D();
 
-                        ksDocument2D newDoc2DAPI5 = kompasObjectAPI5.ActiveDocument2D();
 
+                        string testName = newDoc2DAPI7.Name;
+                        ksDocument2D newDoc2DAPI5 = kompasObjectAPI5.ActiveDocument2D();
+                        
+                        if (!Clipboard.ContainsData("Kompas Graphic Group"))
+                        {
+                            bool post = KompasObjectAPI7.ExecuteKompasCommand((int)ProcessTypeEnum.prEditPaste, true);
+                        }
                         int readGroupFromBuffer = newDoc2DAPI5.ksReadGroupFromClip();
 
                         newDoc2DAPI5.ksStoreTmpGroup(readGroupFromBuffer);
